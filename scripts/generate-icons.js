@@ -1,0 +1,94 @@
+import fs from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+
+const publicDir = path.resolve('public');
+const svgPath = path.join(publicDir, 'icon.svg');
+
+// Modern academic attendance icon with deep slate background & emerald theme color (#10b981)
+const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="60%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Base background with rounded corners for standalone icon -->
+  <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
+
+  <!-- Subtle glowing border in theme color #10b981 -->
+  <rect x="20" y="20" width="472" height="472" rx="95" fill="none" stroke="#10b981" stroke-width="8" stroke-opacity="0.45" />
+
+  <!-- Main Symbol: Cap & Attendance Verification Badge -->
+  <g filter="url(#shadow)">
+    <!-- Mortarboard cap diamond -->
+    <path d="M256 125 L420 205 L256 285 L92 205 Z" fill="#ffffff" />
+    
+    <!-- Cap Rim -->
+    <path d="M165 245 L165 305 C165 355 347 355 347 305 L347 245" fill="none" stroke="#f1f5f9" stroke-width="22" stroke-linecap="round" />
+
+    <!-- Tassel -->
+    <path d="M380 215 L400 290 L408 340" fill="none" stroke="#fbbf24" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="408" cy="350" r="16" fill="#fbbf24" />
+  </g>
+
+  <!-- Big Checkmark / Attendance Badge in Theme Color -->
+  <g transform="translate(295, 275)" filter="url(#shadow)">
+    <circle cx="75" cy="75" r="75" fill="url(#emeraldGrad)" stroke="#ffffff" stroke-width="14" />
+    <path d="M46 76 L68 98 L108 54" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>`;
+
+// Maskable icon with 15% safe padding
+const maskableSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0f172a" />
+  <g transform="translate(51, 51) scale(0.8)">
+    ${svgContent.replace('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">', '').replace('</svg>', '')}
+  </g>
+</svg>`;
+
+async function generate() {
+  fs.writeFileSync(svgPath, svgContent, 'utf-8');
+
+  const svgBuffer = Buffer.from(svgContent);
+  const maskableBuffer = Buffer.from(maskableSvg);
+
+  // 192x192
+  await sharp(svgBuffer)
+    .resize(192, 192)
+    .png()
+    .toFile(path.join(publicDir, 'pwa-192x192.png'));
+  console.log('pwa-192x192.png generated');
+
+  // 512x512
+  await sharp(svgBuffer)
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(publicDir, 'pwa-512x512.png'));
+  console.log('pwa-512x512.png generated');
+
+  // Apple touch icon 180x180
+  await sharp(svgBuffer)
+    .resize(180, 180)
+    .png()
+    .toFile(path.join(publicDir, 'apple-touch-icon.png'));
+  console.log('apple-touch-icon.png generated');
+
+  // Maskable 512x512
+  await sharp(maskableBuffer)
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(publicDir, 'pwa-maskable-512x512.png'));
+  console.log('pwa-maskable-512x512.png generated');
+}
+
+generate().catch(console.error);

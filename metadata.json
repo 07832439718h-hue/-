@@ -1,0 +1,6 @@
+{
+  "name": "حضور الطلاب - متوافق مع AppSheet",
+  "description": "تطبيق إدارة وتسجيل حضور وغياب الطلاب بالباركود وQR ومزامنة جداول البيانات وتنبيهات أولياء الأمور.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
